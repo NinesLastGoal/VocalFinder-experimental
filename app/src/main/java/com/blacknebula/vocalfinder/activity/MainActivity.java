@@ -11,9 +11,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,8 +29,8 @@ import com.txusballesteros.SnakeView;
 
 import org.parceler.Parcels;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import static com.blacknebula.vocalfinder.service.VocalFinderIntentService.SOUND_DETECTED_ACTION;
 import static com.blacknebula.vocalfinder.service.VocalFinderIntentService.SOUND_PITCH_EXTRA;
@@ -41,9 +41,9 @@ import static com.blacknebula.vocalfinder.util.Logger.Type.VOCAL_FINDER;
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_CODE = 1;
 
-    @InjectView(R.id.pitchText)
+    @BindView(R.id.pitchText)
     TextView textView;
-    @InjectView(R.id.snake)
+    @BindView(R.id.snake)
     SnakeView snakeView;
 
     float maxPitch = 200;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(SOUND_DETECTED_ACTION);

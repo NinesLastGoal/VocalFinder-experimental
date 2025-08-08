@@ -12,8 +12,8 @@ import com.blacknebula.vocalfinder.R;
 import com.blacknebula.vocalfinder.VocalFinderApplication;
 import com.blacknebula.vocalfinder.service.VocalFinderIntentService;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import ng.max.slideview.SlideView;
 
 import static com.blacknebula.vocalfinder.service.VocalFinderIntentService.ALARM_STOP_ACTION;
@@ -24,7 +24,7 @@ import static com.blacknebula.vocalfinder.service.VocalFinderIntentService.ALARM
 
 public class AlarmActivity extends Activity {
 
-    @InjectView(R.id.stopAlarm)
+    @BindView(R.id.stopAlarm)
     SlideView stopAlarm;
 
     private BroadcastReceiver receiver;
@@ -34,7 +34,7 @@ public class AlarmActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         keepScreenOn();
 
