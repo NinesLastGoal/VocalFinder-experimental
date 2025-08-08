@@ -1,6 +1,7 @@
 package com.blacknebula.vocalfinder.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -18,7 +19,8 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import android.view.Display;
 
 import com.blacknebula.vocalfinder.R;
@@ -58,6 +60,8 @@ public class VocalFinderIntentService extends NonStopIntentService {
     // Extras
     public static final String SOUND_PITCH_EXTRA = "reply";
     private static final int NOTIFICATION_ID = 1;
+    private static final String CHANNEL_ID = "vocal_finder_channel";
+    private static final String ALARM_CHANNEL_ID = "vocal_finder_alarm_channel";
 
     private static final int MAX_VOLUME = -1;
 
@@ -89,7 +93,35 @@ public class VocalFinderIntentService extends NonStopIntentService {
         super.onCreate();
         isRunning = true;
         stopwatch = Stopwatch.createUnstarted();
+        createNotificationChannels();
         sendNotification(getNotificationType());
+    }
+    
+    private void createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            // Main notification channel
+            NotificationChannel mainChannel = new NotificationChannel(
+                CHANNEL_ID,
+                "Vocal Finder Service",
+                NotificationManager.IMPORTANCE_LOW
+            );
+            mainChannel.setDescription("Ongoing service for voice detection");
+            mainChannel.setSound(null, null);
+            notificationManager.createNotificationChannel(mainChannel);
+            
+            // Alarm notification channel
+            NotificationChannel alarmChannel = new NotificationChannel(
+                ALARM_CHANNEL_ID,
+                "Vocal Finder Alarms",
+                NotificationManager.IMPORTANCE_HIGH
+            );
+            alarmChannel.setDescription("Phone found alarms and alerts");
+            alarmChannel.enableVibration(true);
+            alarmChannel.setVibrationPattern(vibrationPattern);
+            notificationManager.createNotificationChannel(alarmChannel);
+        }
     }
 
     private void sendNotification(NotificationTypeEnum notificationType) {
@@ -100,12 +132,24 @@ public class VocalFinderIntentService extends NonStopIntentService {
         currentNotificationType = notificationType;
 
         final Intent mainIntent = new Intent(VocalFinderApplication.getAppContext(), MainActivity.class);
-        final PendingIntent pReceiverIntent = PendingIntent.getActivity(VocalFinderApplication.getAppContext(), 1, mainIntent, 0);
+        final PendingIntent pReceiverIntent = PendingIntent.getActivity(
+            VocalFinderApplication.getAppContext(), 
+            1, 
+            mainIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
 
         final Intent settingsIntent = new Intent(VocalFinderApplication.getAppContext(), SettingsActivity.class);
-        final PendingIntent pSettings = PendingIntent.getActivity(VocalFinderApplication.getAppContext(), 1, settingsIntent, 0);
+        final PendingIntent pSettings = PendingIntent.getActivity(
+            VocalFinderApplication.getAppContext(), 
+            1, 
+            settingsIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
 
-        final Notification.Builder builder = new Notification.Builder(VocalFinderApplication.getAppContext())
+        String channelId = NotificationTypeEnum.ALARM.equals(notificationType) ? ALARM_CHANNEL_ID : CHANNEL_ID;
+        
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(VocalFinderApplication.getAppContext(), channelId)
                 .setSmallIcon(getNotificationSmallIcon(notificationType))
                 .setColor(Color.WHITE)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
@@ -118,12 +162,22 @@ public class VocalFinderIntentService extends NonStopIntentService {
         if (NotificationTypeEnum.ALARM.equals(notificationType)) {
             final Intent stopAlarmIntent = new Intent(VocalFinderApplication.getAppContext(), VocalFinderIntentService.class);
             stopAlarmIntent.setAction(ALARM_STOP_ACTION);
-            final PendingIntent pStopAlarm = PendingIntent.getService(VocalFinderApplication.getAppContext(), 1, stopAlarmIntent, FLAG_CANCEL_CURRENT);
+            final PendingIntent pStopAlarm = PendingIntent.getService(
+                VocalFinderApplication.getAppContext(), 
+                1, 
+                stopAlarmIntent, 
+                FLAG_CANCEL_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
             builder.addAction(R.mipmap.ic_stop, "", pStopAlarm);
         } else {
             final Intent killIntent = new Intent(VocalFinderApplication.getAppContext(), VocalFinderIntentService.class);
             killIntent.setAction(KILL_ACTION);
-            final PendingIntent pKill = PendingIntent.getService(VocalFinderApplication.getAppContext(), 1, killIntent, FLAG_CANCEL_CURRENT);
+            final PendingIntent pKill = PendingIntent.getService(
+                VocalFinderApplication.getAppContext(), 
+                1, 
+                killIntent, 
+                FLAG_CANCEL_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+            );
             builder.addAction(R.mipmap.ic_close, "", pKill);
         }
 

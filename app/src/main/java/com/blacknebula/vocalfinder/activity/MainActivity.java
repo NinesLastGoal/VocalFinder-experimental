@@ -40,6 +40,7 @@ import static com.blacknebula.vocalfinder.util.Logger.Type.VOCAL_FINDER;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_CODE = 1;
+    private static final int NOTIFICATION_REQUEST_CODE = 2;
 
     @BindView(R.id.pitchText)
     TextView textView;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(receiver, filter);
 
         detectFlashSupport();
+        requestNotificationPermission();
         requestRecordAudioPermission();
         requestWriteSettingsPermission();
     }
@@ -124,6 +126,14 @@ public class MainActivity extends AppCompatActivity {
                     // functionality that depends on this permission.
                     Logger.warn(VOCAL_FINDER, "%s: Permission Denied!", "Record audio");
                     finish();
+                }
+                return;
+            }
+            case NOTIFICATION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Logger.info(VOCAL_FINDER, "Notification permission granted");
+                } else {
+                    Logger.warn(VOCAL_FINDER, "%s: Permission Denied!", "Post notifications");
                 }
                 return;
             }
@@ -197,6 +207,28 @@ public class MainActivity extends AppCompatActivity {
     private void openManageWriteSettingsActivity() {
         final Intent grantIntent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
         startActivity(grantIntent);
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    ViewUtils.openDialog(this, R.string.notification_permission_title, R.string.notification_permission_message, new ViewUtils.onClickListener() {
+                        @Override
+                        public void onPositiveClick() {
+                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_REQUEST_CODE);
+                        }
+
+                        @Override
+                        public void onNegativeClick() {
+                            Logger.warn(VOCAL_FINDER, "%s: Permission Denied!", "Post notifications");
+                        }
+                    });
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_REQUEST_CODE);
+                }
+            }
+        }
     }
 
     void detectFlashSupport() {

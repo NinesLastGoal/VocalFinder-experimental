@@ -7,6 +7,33 @@ Did you ever put your phone somewhere and then you forgot where? Did you ever wa
 This application detects voices and will start vibrating, emitting a ringtone and flash to indicate its position.
 Audio sensitivity is configurable to meet our preferences.
 
+## 🚀 Modernization Status
+
+This project has been **fully modernized** for 2024 Android development standards:
+
+### ✅ Updated Build System
+- **Gradle**: Updated from 3.3 (2017) to 7.6.4 (2023)
+- **Android Gradle Plugin**: Updated from 2.3.1 to 7.4.2
+- **Target SDK**: Updated from API 25 (Android 7.1) to API 33 (Android 13)
+- **Minimum SDK**: Updated from API 19 (Android 4.4) to API 21 (Android 5.0)
+
+### ✅ AndroidX Migration
+- Migrated from Support Library to AndroidX
+- Updated all dependencies to modern versions
+- ButterKnife updated to 10.x with modern annotations
+
+### ✅ Modern Android Features
+- **Notification Channels**: Added for Android 8.0+ compatibility
+- **Runtime Permissions**: Enhanced for Android 13+ (including notification permissions)
+- **Foreground Services**: Proper implementation with microphone service type
+- **Security**: Modern PendingIntent flags and permissions model
+
+### ✅ Compatibility
+- **Google Play Store**: Now meets current publishing requirements
+- **Modern Devices**: Compatible with Android 5.0 through Android 13+
+- **Background Execution**: Handles modern background restrictions
+- **Backup Rules**: Added modern backup and data extraction rules
+
 ## How does it work?
 Start the application. Choose the way in which your lost phone will inform you about its position. You have multiple choices in app settings:
 - Ringtone: Choose the sound notification which will be played when the phone is found.
@@ -36,6 +63,16 @@ At the phone call end, the application will resume listening out for the voice s
 </p>
 
 ## Change logs
+### version 2.0 (Modernization Update)
+* **MAJOR MODERNIZATION**: Updated to Android 13 compatibility
+* Migrated from Support Library to AndroidX
+* Added notification channels for Android 8.0+
+* Enhanced runtime permissions for Android 13+
+* Updated build system to modern Gradle and AGP
+* Improved foreground service implementation
+* Added modern backup and security features
+* Compatible with Google Play Store requirements
+
 ### version 1.3
 * Display stop alarm activity if manual alarm stopping is selected 
 * wake up device when alarm is on
